@@ -64,6 +64,10 @@ export default class Cl_mExperto extends Cl_mTablaWeb {
     if (!this.areaOk) return "Debe seleccionar un área";
     return true;
   }
+  get cargoOk(): string | true {
+    if (this.cargo.length < 3) return "El cargo es muy corto";
+    return true;
+  }
 
   toJSON(): iExperto {
     return {

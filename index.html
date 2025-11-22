@@ -25,28 +25,15 @@
 
     <div id="sistema" class="vista activa">
         <h2>Panel de Control</h2>
-        
         <label id="sistema_lblMensaje" style="color: green; font-weight: bold; margin-bottom: 15px; display: block;"></label>
         
-        <div class="dashboard-modulos">
-            
-            <div class="modulo-card">
-                <h3>👥 Gestión de Expertos</h3>
-                <p>Administración y mantenimiento del catálogo de especialistas.</p>
-                <button id="sistema_btGestionExpertos">Acceder a Expertos</button>
-            </div>
-            
-            <div class="modulo-card">
-                <h3>👤 Gestión de Grupos/Usuarios</h3>
-                <p>Administración de los usuarios y grupos que generan las consultas.</p>
-                <button id="sistema_btGestionGrupos">Acceder a Grupos/Usuarios</button>
-            </div>
-        </div>
+        <p>Módulos de administración:</p>
+        <button id="sistema_btGestionExpertos">👥 Gestión de Expertos</button>
+        <button id="sistema_btGestionGrupos">➕ Registrar Nueva Consulta</button>
     </div>
 
     <div id="expertos" class="vista">
         <h2>Listado de Expertos</h2>
-        
         <button id="expertos_btAgregar">Agregar Nuevo Experto</button>
         <button id="expertos_btVolver">Volver al Menú</button>
         
@@ -62,7 +49,13 @@
         <input type="text" id="experto_inNombre">
         
         <label for="experto_inArea">Área de Especialización:</label>
-        <input type="text" id="experto_inArea">
+        <select id="experto_inArea">
+            <option value="">-- Seleccione Área --</option>
+            <option value="BACKEND">Backend</option>
+            <option value="FRONTEND">Frontend</option>
+            <option value="DBA">Bases de Datos</option>
+            <option value="CLOUD">Cloud Computing</option>
+        </select>
         
         <label for="experto_inCargo">Cargo/Título:</label>
         <input type="text" id="experto_inCargo">
@@ -72,23 +65,28 @@
     </div>
 
     <div id="grupos" class="vista">
-        <h2>Listado de Grupos/Usuarios</h2>
+        <h2>Consultas Pendientes y Cerradas</h2>
         
-        <button id="grupos_btAgregar">Agregar Nuevo Grupo/Usuario</button>
+        <button id="grupos_btAgregar">Registrar Nueva Consulta</button>
         <button id="grupos_btVolver">Volver al Menú</button>
         
         <div id="grupos_divGrupos">
-             <table><thead><tr><th>Nombre</th><th>Consultas Realizadas</th><th>Acciones</th></tr></thead><tbody><tr><td>Cargando...</td></tr></tbody></table>
+             <table><thead><tr><th>ID Consulta</th><th>Experto</th><th>Pregunta</th><th>Estado</th></tr></thead><tbody><tr><td>Cargando...</td></tr></tbody></table>
         </div>
     </div>
 
     <div id="grupo" class="vista">
-        <h2 id="grupo_lblOpcion">Registrar Grupo</h2>
+        <h2 id="grupo_lblOpcion">Registrar Nueva Consulta</h2>
         
-        <label for="grupo_inNombre">Nombre del Grupo/Usuario:</label>
-        <input type="text" id="grupo_inNombre">
-        
-        <button id="grupo_btAceptar">Aceptar</button>
+        <label for="grupo_inExperto">Seleccionar Experto:</label>
+        <select id="grupo_inExperto">
+            <option value="">-- Cargando expertos... --</option>
+        </select>
+
+        <label for="grupo_inPregunta">Tu Pregunta:</label>
+        <textarea id="grupo_inPregunta" rows="5" placeholder="Escribe tu consulta aquí (mínimo 10 caracteres)"></textarea>
+
+        <button id="grupo_btAceptar">Enviar Consulta</button>
         <button id="grupo_btCancelar">Cancelar</button>
     </div>
 
@@ -96,6 +94,5 @@
         import Cl_index from "./dist/Cl_index.js";
         new Cl_index()
     </script>
-
 </body>
 </html>

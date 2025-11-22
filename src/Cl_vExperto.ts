@@ -1,6 +1,7 @@
 import Cl_mExperto from "./Cl_mExperto.js";
 import Cl_vGeneral from "./tools/Cl_vGeneral.js";
 import { opcionFicha } from "./tools/core.tools.js";
+import { tHTMLElement } from "./tools/Cl_vGeneral.js";
 
 export default class Cl_vExperto extends Cl_vGeneral {
   private inNombre: HTMLInputElement;
@@ -33,22 +34,25 @@ export default class Cl_vExperto extends Cl_vGeneral {
         (this.inNombre.style.borderColor = this.experto.nombreOk ? "" : "red"),
     });
 
-    // Input Area (Select)
-    // Nota: Asumo que tienes un método genérico o usas cast a HTMLSelectElement
-    this.inArea = document.getElementById("experto_inArea") as HTMLSelectElement; 
-    // Si tu framework crea selects dinámicos, ajusta aquí. Simularé asignación de evento:
-    if(this.inArea) {
-        this.inArea.onchange = () => {
-            this.experto.area = this.inArea.value;
-            this.refresh();
-        };
-    }
+    // Input Área
+    this.inArea = this.crearHTMLElement("inArea", {
+    type: tHTMLElement.SELECT,
+    onchange: () => {
+      this.experto.area = this.inArea.value;
+      this.refresh();
+    },
+    refresh: () =>
+      (this.inArea.style.borderColor = this.experto.areaOk ? "" : "red"),
+}) as HTMLSelectElement;
 
     // Input Cargo
     this.inCargo = this.crearHTMLInputElement("inCargo", {
-      oninput: () => {
-        this.experto.cargo = this.inCargo.value;
-      },
+        oninput: () => {
+            this.experto.cargo = this.inCargo.value;
+            this.refresh();
+        },
+        refresh: () =>
+          (this.inCargo.style.borderColor = this.experto.cargoOk ? "" : "red"),
     });
 
     this.btAceptar = this.crearHTMLButtonElement("btAceptar", {
@@ -82,6 +86,8 @@ export default class Cl_vExperto extends Cl_vGeneral {
       });
     }
   }
+
+  // MÉTODO CORREGIDO
   show({
     ver,
     experto,
@@ -90,10 +96,12 @@ export default class Cl_vExperto extends Cl_vGeneral {
     ver: boolean;
     experto?: Cl_mExperto;
     opcion?: opcionFicha;
-  } = { ver: false }): void { // Nota: ajusté el valor por defecto
+  } = { ver: false }): void {
     super.show({ ver });
+    
+    // Solo actualizamos los inputs si la vista se está mostrando (ver: true)
     if (ver) { 
-        this.opcion = opcion || null; 
+        this.opcion = opcion || null; // Capturamos la opción de operación (add/edit)
 
         if (opcion === opcionFicha.add) {
             // FIX CRÍTICO: Creamos una instancia limpia para la opción "Agregar"
@@ -102,9 +110,9 @@ export default class Cl_vExperto extends Cl_vGeneral {
         } else if (opcion === opcionFicha.edit && experto) {
             // Modo Editar: Usamos el modelo que fue pasado como parámetro
             this.experto = experto;
-        }
-
-        // Actualizamos los inputs con los datos del experto actual
+        } 
+        
+        // Asignamos los valores (ahora this.experto siempre es un objeto)
         this.inNombre.value = this.experto.nombre; 
         this.inArea.value = this.experto.area;
         this.inCargo.value = this.experto.cargo;

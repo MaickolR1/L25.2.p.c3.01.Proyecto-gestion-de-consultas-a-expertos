@@ -48,6 +48,11 @@ export default class Cl_mExperto extends Cl_mTablaWeb {
             return "Debe seleccionar un área";
         return true;
     }
+    get cargoOk() {
+        if (this.cargo.length < 3)
+            return "El cargo es muy corto";
+        return true;
+    }
     toJSON() {
         return Object.assign(Object.assign({}, super.toJSON()), { nombre: this._nombre, area: this._area, cargo: this._cargo });
     }

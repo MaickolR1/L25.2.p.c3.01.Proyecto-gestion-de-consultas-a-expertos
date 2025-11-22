@@ -1,3 +1,5 @@
+// En Cl_vGrupos.ts
+
 import { iGrupo } from "./Cl_mGrupo.js";
 import Cl_vGeneral, { tHTMLElement } from "./tools/Cl_vGeneral.js";
 import { opcionFicha } from "./tools/core.tools.js";
@@ -8,14 +10,14 @@ export default class Cl_vGrupos extends Cl_vGeneral {
   private divGrupos: HTMLDivElement;
 
   constructor() {
-    super({ formName: "grupos" }); // Asegúrate de tener <div id="grupos"> en tu HTML
+    super({ formName: "grupos" });
     
+    // CAMBIO: Este botón ahora activa la vista de Registro de Consulta (grupo)
     this.btAgregar = this.crearHTMLButtonElement("btAgregar", {
-      onclick: () => this.addGrupo(),
+      onclick: () => this.controlador!.activarVista({ vista: "grupo" }),
     });
     
     this.btVolver = this.crearHTMLButtonElement("btVolver", {
-      // Vuelve al menú principal del sistema
       onclick: () => this.controlador!.activarVista({ vista: "sistema" }),
     });
 
@@ -29,53 +31,64 @@ export default class Cl_vGrupos extends Cl_vGeneral {
     this.divGrupos.innerHTML = "";
     let grupos = this.controlador?.dtGrupos;
     
+    // ... (El resto de la función mostrarGrupos permanece igual, listando los grupos)
+    
     if (!grupos) return;
 
     // Cabecera de la tabla
-    this.divGrupos.innerHTML += `
-        <thead>
-            <tr>
-                <th>Nombre Grupo/Usuario</th>
-                <th>Consultas Realizadas</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>`;
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre Grupo/Usuario</th>
+                    <th># Consultas</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
 
+    // Llenar el cuerpo de la tabla
     grupos.forEach(
-      (grupo: iGrupo, index: number) => {
-        const cantConsultas = grupo.consultas ? grupo.consultas.length : 0;
-        this.divGrupos.innerHTML += `
-            <tr>
-                <td>${grupo.nombre}</td>
-                <td style="text-align:center">${cantConsultas}</td>
-                <td>
-                    <button id="grupos_btEditar_${index}">Editar</button>
-                    <button id="grupos_btEliminar_${index}">X</button>
-                </td>
-            </tr>`;
-      }
+        (grupo: iGrupo, index: number) => {
+            const cantConsultas = grupo.consultas ? grupo.consultas.length : 0;
+            html += `
+                <tr>
+                    <td>${grupo.nombre}</td>
+                    <td style="text-align:center">${cantConsultas}</td>
+                    <td>
+                        <button id="grupos_btEditar_${index}">Editar</button>
+                        <button id="grupos_btEliminar_${index}">X</button>
+                    </td>
+                </tr>
+            `;
+        }
     );
-    this.divGrupos.innerHTML += `</tbody>`;
+
+    html += `</tbody></table>`;
+    this.divGrupos.innerHTML = html;
 
     // Asignación de eventos dinámicos a los botones de la tabla
     grupos.forEach((grupo: iGrupo, index) => {
-      this.crearHTMLButtonElement(`btEditar_${index}`, {
-        onclick: () => this.editarGrupo(grupo.id!),
-      });
-      this.crearHTMLButtonElement(`btEliminar_${index}`, {
-        onclick: () => this.deleteGrupo(grupo.id!),
-      });
+        this.crearHTMLButtonElement(`btEditar_${index}`, {
+            onclick: () => this.editarGrupo(grupo.id!),
+        });
+        this.crearHTMLButtonElement(`btEliminar_${index}`, {
+            onclick: () => this.deleteGrupo(grupo.id!),
+        });
     });
   }
 
   addGrupo() {
     this.controlador?.activarVista({
-      vista: "grupo",
+      vista: "grupo", // 'grupo' es el formulario de REGISTRO DE CONSULTA
       opcion: opcionFicha.add,
     });
   }
 
+  /**
+   * Navega al formulario para editar un Grupo/Usuario existente.
+   */
   editarGrupo(id: number) {
     let grupo = this.controlador?.grupo(id);
     if (grupo)
@@ -85,21 +98,14 @@ export default class Cl_vGrupos extends Cl_vGeneral {
         objeto: grupo,
       });
   }
-
   deleteGrupo(id: number) {
-    if (confirm(`¿Está seguro de eliminar este grupo?`))
-      this.controlador?.deleteGrupo({ // Asegúrate de tener este método en el controlador
-        id, // Ojo: en Cl_controlador definimos deleteGrupo({id, callback})
+    if (confirm(`¿Está seguro de eliminar este Grupo/Usuario (ID: ${id})?`))
+      this.controlador?.deleteGrupo({
+        id,
         callback: (error) => {
-          if (error)
-            alert(`No se pudo eliminar.\n${error}`);
-          else this.mostrarGrupos();
+          if (!error) this.controlador!.activarVista({ vista: "grupos" });
+          else alert(`Error al eliminar: ${error}`);
         },
       });
-  }
-
-  show({ ver }: { ver: boolean }): void {
-    super.show({ ver });
-    if (ver) this.mostrarGrupos();
   }
 }

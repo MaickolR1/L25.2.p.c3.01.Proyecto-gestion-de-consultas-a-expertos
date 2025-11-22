@@ -1,3 +1,5 @@
+import Cl_mExperto from "./Cl_mExperto.js";
+import Cl_mGrupo from "./Cl_mGrupo.js";
 import Cl_vExperto from "./Cl_vExperto.js";
 import Cl_vExpertos from "./Cl_vExpertos.js";
 import Cl_vGrupo from "./Cl_vGrupo.js";
@@ -5,8 +7,8 @@ import Cl_vGrupos from "./Cl_vGrupos.js";
 import Cl_vGeneral from "./tools/Cl_vGeneral.js";
 export default class Cl_vSistema extends Cl_vGeneral {
     constructor() {
-        super({ formName: "sistema" }); // Asegúrate de tener <div id="sistema"> en tu HTML
-        // 1. Instanciar las sub-vistas
+        super({ formName: "sistema" });
+        // 1. Instanciar las sub-vistas y ocultarlas
         this.vExpertos = new Cl_vExpertos();
         this.vExpertos.show({ ver: false });
         this.vExperto = new Cl_vExperto();
@@ -15,7 +17,7 @@ export default class Cl_vSistema extends Cl_vGeneral {
         this.vGrupos.show({ ver: false });
         this.vGrupo = new Cl_vGrupo();
         this.vGrupo.show({ ver: false });
-        // 2. Crear controles del menú principal (Panel de Administración)
+        // 2. Botones del menú principal
         this.btGestionExpertos = this.crearHTMLButtonElement("btGestionExpertos", {
             onclick: () => this.controlador.activarVista({ vista: "expertos" }),
         });
@@ -37,23 +39,27 @@ export default class Cl_vSistema extends Cl_vGeneral {
     get controlador() {
         return super.controlador;
     }
-    // 4. Lógica de Navegación Central
+    // 4. Lógica de Navegación Central (¡CORRECCIÓN AQUÍ!)
     activarVista({ vista, opcion, objeto, }) {
         // 4.1. Vista Principal (Menú)
         this.show({ ver: vista === "sistema" });
-        // 4.2. Módulo Expertos
+        // 4.2. Módulo Expertos (Listado y Formulario)
         this.vExpertos.show({ ver: vista === "expertos" });
         this.vExperto.show({
             ver: vista === "experto",
-            experto: vista === "experto" ? objeto : undefined,
-            opcion
+            // FIX: Solo pasamos 'experto' si el objeto existe y es una instancia de Cl_mExperto
+            experto: objeto instanceof Cl_mExperto ? objeto : undefined,
+            opcion,
         });
-        // 4.3. Módulo Grupos
+        // 4.3. Módulo Grupos (Listado y Formulario de Consulta/Edición)
         this.vGrupos.show({ ver: vista === "grupos" });
         this.vGrupo.show({
             ver: vista === "grupo",
-            grupo: vista === "grupo" ? objeto : undefined,
-            opcion
+            // FIX: Solo pasamos 'grupo' si el objeto existe y es una instancia de Cl_mGrupo
+            grupo: objeto instanceof Cl_mGrupo ? objeto : undefined,
+            opcion,
         });
+        // Refrescar el sistema (siempre al final de un cambio de vista)
+        this.refresh();
     }
 }
