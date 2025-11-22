@@ -18,9 +18,9 @@ Detalle/Gestión de Preguntas (Question Management):
 Una vista que muestra todas las preguntas actualmente asignadas a un experto en particular.
 Debe permitir al experto Responder o Cerrar una pregunta. Al cerrarse, la pregunta
 sale de su lista de pendientes y su contador se reduce.  */
-import Cl_controlador from "./Cl_controlador";
-import Cl_vSistema from "./Cl_vSistema";
-import Cl_mSistema from "./Cl_mSistema";
+import Cl_controlador from "./Cl_controlador.js";
+import Cl_vSistema from "./Cl_vSistema.js";
+import Cl_mSistema from "./Cl_mSistema.js";
 export default class Cl_index {
     constructor() {
         let modelo = new Cl_mSistema();
