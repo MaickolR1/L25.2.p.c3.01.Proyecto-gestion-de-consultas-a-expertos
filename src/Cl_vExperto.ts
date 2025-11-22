@@ -82,7 +82,6 @@ export default class Cl_vExperto extends Cl_vGeneral {
       });
     }
   }
-
   show({
     ver,
     experto,
@@ -91,14 +90,26 @@ export default class Cl_vExperto extends Cl_vGeneral {
     ver: boolean;
     experto?: Cl_mExperto;
     opcion?: opcionFicha;
-  } = { ver: false, experto: new Cl_mExperto() }): void {
+  } = { ver: false }): void { // Nota: ajusté el valor por defecto
     super.show({ ver });
-    if (opcion) {
-      this.opcion = opcion;
-      this.experto.nombre = this.inNombre.value = experto!.nombre;
-      this.experto.area = this.inArea.value = experto!.area; // Asegúrate que el select tenga options
-      this.experto.cargo = this.inCargo.value = experto!.cargo;
-      this.refresh();
+    if (ver) { 
+        this.opcion = opcion || null; 
+
+        if (opcion === opcionFicha.add) {
+            // FIX CRÍTICO: Creamos una instancia limpia para la opción "Agregar"
+            this.experto = new Cl_mExperto();
+            
+        } else if (opcion === opcionFicha.edit && experto) {
+            // Modo Editar: Usamos el modelo que fue pasado como parámetro
+            this.experto = experto;
+        }
+
+        // Actualizamos los inputs con los datos del experto actual
+        this.inNombre.value = this.experto.nombre; 
+        this.inArea.value = this.experto.area;
+        this.inCargo.value = this.experto.cargo;
+
+        this.refresh();
     }
   }
 }
