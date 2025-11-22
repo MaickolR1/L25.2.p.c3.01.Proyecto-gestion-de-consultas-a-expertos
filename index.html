@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Expertos y Consultas</title>
-     <meta property="og:title" content="Gestión de Expertos y Consultas" />
+    <!-- Título de la página y de la vista previa (WhatsApp) -->
+    <title>Gestion Central de Consultas</title>
+    <meta property="og:title" content="Gestion Central de Consultas" />
     <!-- Descripción corta y atractiva -->
-    <meta property="og:description" content="Gestión de Expertos y Consultas" />
+    <meta property="og:description" content="Gestion Central de Consultas" />
     <!-- Imagen que se muestra en WhatsApp (logo o imagen destacada, 800x418 px recomendado) -->
     <meta property="og:image" content="https://proyecto-gestion-de-consultas.vercel.app/resources/logo.png" />
     <!-- URL del proyecto -->
-    <meta property="og:url" content="https://proyecto-gestion-de-consultas.vercel.app" />
+    <meta property="og:url" content="https://proyecto-gestion-de-consultas.vercel.app/" />
     <!-- Tipo de contenido -->
     <meta property="og:type" content="website" />
     <!-- Favicon -->
@@ -20,75 +21,74 @@
 </head>
 <body>
 
-    <h1>Sistema de Gestión de Consultas a Expertos</h1>
-    
-    <div id="sistema" class="vista activa"> 
-        <h2>Menú Principal</h2>
+    <h1>Gestión Central de Consultas</h1>
+
+    <div id="sistema" class="vista activa">
+        <h2>Panel de Control</h2>
         
-        <label id="sistema_lblMensaje" style="color: green; font-weight: bold;"></label>
+        <label id="sistema_lblMensaje" style="color: green; font-weight: bold; margin-bottom: 15px; display: block;"></label>
         
-        <p>Seleccione el módulo que desea gestionar:</p>
-        
-        <button id="sistema_btGestionExpertos">Gestión de Expertos</button>
-        
-        <button id="sistema_btGestionGrupos">Gestión de Grupos/Usuarios</button>
+        <div class="dashboard-modulos">
+            
+            <div class="modulo-card">
+                <h3>👥 Gestión de Expertos</h3>
+                <p>Administración y mantenimiento del catálogo de especialistas.</p>
+                <button id="sistema_btGestionExpertos">Acceder a Expertos</button>
+            </div>
+            
+            <div class="modulo-card">
+                <h3>👤 Gestión de Grupos/Usuarios</h3>
+                <p>Administración de los usuarios y grupos que generan las consultas.</p>
+                <button id="sistema_btGestionGrupos">Acceder a Grupos/Usuarios</button>
+            </div>
+        </div>
     </div>
 
     <div id="expertos" class="vista">
-        <h2>Expertos Registrados</h2>
+        <h2>Listado de Expertos</h2>
         
         <button id="expertos_btAgregar">Agregar Nuevo Experto</button>
-        
-        <button id="expertos_btVolver">Volver al Menú Principal</button>
+        <button id="expertos_btVolver">Volver al Menú</button>
         
         <div id="expertos_divExpertos">
-            <table><thead><tr><th>Cargando Datos...</th></tr></thead></table>
+            <table><thead><tr><th>Nombre</th><th>Área</th><th>Cargo</th><th>Acciones</th></tr></thead><tbody><tr><td>Cargando...</td></tr></tbody></table>
         </div>
     </div>
 
     <div id="experto" class="vista">
-        <h2 id="experto_lblOpcion">Registrar Experto</h2>
+        <h2 id="experto_lblOpcion">Agregar Experto</h2>
         
         <label for="experto_inNombre">Nombre:</label>
         <input type="text" id="experto_inNombre">
         
         <label for="experto_inArea">Área de Especialización:</label>
-        <select id="experto_inArea"> 
-            <option value="">-- Seleccione un Área --</option>
-            <option value="BACKEND">Backend</option>
-            <option value="FRONTEND">Frontend</option>
-            <option value="DBA">Bases de Datos</option>
-            <option value="CLOUD">Cloud Computing</option>
-        </select>
+        <input type="text" id="experto_inArea">
         
         <label for="experto_inCargo">Cargo/Título:</label>
         <input type="text" id="experto_inCargo">
         
         <button id="experto_btAceptar">Aceptar</button>
-        
         <button id="experto_btCancelar">Cancelar</button>
     </div>
 
     <div id="grupos" class="vista">
-        <h2>Grupos/Usuarios Registrados</h2>
+        <h2>Listado de Grupos/Usuarios</h2>
         
         <button id="grupos_btAgregar">Agregar Nuevo Grupo/Usuario</button>
-        
-        <button id="grupos_btVolver">Volver al Menú Principal</button>
+        <button id="grupos_btVolver">Volver al Menú</button>
         
         <div id="grupos_divGrupos">
-            <table><thead><tr><th>Cargando Datos...</th></tr></thead></table>
+             <table><thead><tr><th>Nombre</th><th>Consultas Realizadas</th><th>Acciones</th></tr></thead><tbody><tr><td>Cargando...</td></tr></tbody></table>
         </div>
     </div>
 
     <div id="grupo" class="vista">
-        <h2 id="grupo_lblOpcion">Registrar Grupo/Usuario</h2>
+        <h2 id="grupo_lblOpcion">Registrar Grupo</h2>
         
         <label for="grupo_inNombre">Nombre del Grupo/Usuario:</label>
         <input type="text" id="grupo_inNombre">
         
         <button id="grupo_btAceptar">Aceptar</button>
-        
         <button id="grupo_btCancelar">Cancelar</button>
     </div>
 
@@ -96,5 +96,6 @@
         import Cl_index from "./dist/Cl_index.js";
         new Cl_index()
     </script>
+
 </body>
 </html>
