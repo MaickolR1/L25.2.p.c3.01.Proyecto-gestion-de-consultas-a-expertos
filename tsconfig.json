@@ -113,6 +113,6 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
-  "include": ["src", "src/Cl_mExperto.ts", "src/Cl_controlador.ts", "src/Cl_vGrupo.ts", "src/Cl_index.ts" ],
+  "include": ["src"],
   "exclude": ["dist"]
 }
