@@ -60,10 +60,13 @@
 </head>
 <body>
 
+   <body>
+
     <h1>Gestión Central de Consultas</h1>
 
     <div id="sistema" class="vista activa">
         <h2>Panel de Control</h2>
+        
         <label id="sistema_lblMensaje" style="color: green; font-weight: bold; margin-bottom: 15px; display: block;"></label>
         
         <div class="dashboard-modulos">
@@ -80,8 +83,7 @@
                 <button id="sistema_btGestionGrupos">Acceder a Grupos/Usuarios</button>
             </div>
         </div>
-        
-        </div>
+    </div>
 
     <div id="expertos" class="vista">
         <h2>Listado de Expertos</h2>
@@ -95,17 +97,15 @@
     </div>
 
     <div id="experto" class="vista">
-        <h2 id="lblOpcion">Agregar Experto</h2>
+        <h2 id="experto_lblOpcion">Agregar Experto</h2>
         
-        <label id="experto_lblOpcion">Opción del experto</label>
-        
-        <label for="inNombre">Nombre:</label>
+        <label for="experto_inNombre">Nombre:</label>
         <input type="text" id="experto_inNombre">
         
-        <label for="inArea">Área de Especialización:</label>
+        <label for="experto_inArea">Área de Especialización:</label>
         <input type="text" id="experto_inArea">
         
-        <label for="inCargo">Cargo/Título:</label>
+        <label for="experto_inCargo">Cargo/Título:</label>
         <input type="text" id="experto_inCargo">
         
         <button id="experto_btAceptar">Aceptar</button>
@@ -124,21 +124,18 @@
     </div>
 
     <div id="grupo" class="vista">
-        <h2 id="lblOpcion">Registrar Grupo</h2>
+        <h2 id="grupo_lblOpcion">Registrar Grupo</h2>
         
-        <label id="grupo_lblOpcion">Opción del Grupo/Usuario</label>
-        
-        <label for="grupo_inNombreGrupo">Nombre del Grupo/Usuario:</label>
+        <label for="grupo_inNombre">Nombre del Grupo/Usuario:</label>
         <input type="text" id="grupo_inNombre">
         
         <button id="grupo_btAceptar">Aceptar</button>
         <button id="grupo_btCancelar">Cancelar</button>
     </div>
 
-    <script type="module">
+     <script type="module">
         import Cl_index from "./dist/Cl_index.js";
-        new Cl_index();
+        new Cl_index()
     </script>
-
 </body>
 </html>
