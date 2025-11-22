@@ -18,29 +18,44 @@ export default class Cl_vExpertos extends Cl_vGeneral {
         var _a;
         this.divExpertos.innerHTML = "";
         let expertos = (_a = this.controlador) === null || _a === void 0 ? void 0 : _a.dtExpertos;
-        if (!expertos)
+        if (!expertos || expertos.length === 0) {
+            this.divExpertos.innerHTML = "<p>No hay expertos registrados.</p>";
             return;
-        // Cabecera simple
-        this.divExpertos.innerHTML += `
-        <tr>
-            <th>Nombre</th>
-            <th>Área</th>
-            <th>Cargo</th>
-            <th>Acciones</th>
-        </tr>`;
-        expertos.forEach((experto, index) => (this.divExpertos.innerHTML += `<tr>
-            <td>${experto.nombre}</td>
-            <td>${experto.area}</td>
-            <td>${experto.cargo}</td>
-            <td>
-                <button id="expertos_btEditar_${index}">Editar</button>
-                <button id="expertos_btEliminar_${index}">X</button>
-            </td>
-        </tr>`));
-        // Asignar eventos
+        }
+        // 1. Iniciar la estructura de la tabla con el encabezado (<thead>)
+        let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Área</th>
+                    <th>Cargo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+        // 2. Llenar el cuerpo de la tabla (<tbody>)
+        expertos.forEach((experto, index) => {
+            html += `
+                <tr>
+                    <td>${experto.nombre}</td>
+                    <td>${experto.area}</td>
+                    <td>${experto.cargo}</td>
+                    <td>
+                        <button id="expertos_btEditar_${index}">Editar</button>
+                        <button id="expertos_btEliminar_${index}">X</button>
+                    </td>
+                </tr>
+            `;
+        });
+        // 3. Cerrar la tabla y asignar todo al DIV
+        html += `</tbody></table>`;
+        this.divExpertos.innerHTML = html;
+        // 4. Asignar eventos (ESTO DEBE IR DESPUÉS de asignar el HTML)
         expertos.forEach((experto, index) => {
             this.crearHTMLButtonElement(`btEditar_${index}`, {
-                onclick: () => this.editarExperto(experto.id), // Usamos ID o Nombre como key
+                onclick: () => this.editarExperto(experto.id),
             });
             this.crearHTMLButtonElement(`btEliminar_${index}`, {
                 onclick: () => this.deleteExperto(experto.id),
