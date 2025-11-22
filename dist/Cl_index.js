@@ -33,6 +33,7 @@ export default class Cl_index {
             let controlador = new Cl_controlador(modelo, vista);
             vista.controlador = controlador;
             vista.refresh();
+            controlador.activarVista({ vista: "sistema" });
         });
     }
 }
