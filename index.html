@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExpertQ - Sistema de Consultas</title>
+    <title>ExpertQ - Gestión de Consultas</title>
      <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Título de la página y de la vista previa (WhatsApp) -->
@@ -21,33 +21,75 @@
     <link rel="icon" type="image/png" href="./resources/favicon.png">
     <!-- Estilos CSS -->
     <link rel="stylesheet" href="styles.css?v251103-1750" />
+    <style>
+        /* ================= ESTILOS NECESARIOS ================= */
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f4; margin: 20px; }
+        
+        /* VISTAS: Ocultas por defecto, visibles si tienen clase 'activa' */
+        .vista {
+            display: none; 
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        .vista.activa { display: block; animation: fadeIn 0.3s; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        h1 { text-align: center; color: #333; }
+        h2 { color: #0056b3; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
+        
+        /* Inputs y Botones */
+        label { display: block; margin-top: 10px; font-weight: bold; color: #555; }
+        input, select, textarea { 
+            width: 100%; padding: 10px; margin-top: 5px; 
+            border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; 
+        }
+        button { 
+            padding: 10px 20px; margin-top: 15px; margin-right: 10px; cursor: pointer; 
+            background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 14px; 
+        }
+        button:hover { background-color: #218838; }
+        
+        /* Botones de Volver/Cancelar (Estilo diferente) */
+        button[id$="Volver"], button[id$="Cancelar"] { background-color: #6c757d; }
+        button[id$="Volver"]:hover, button[id$="Cancelar"]:hover { background-color: #5a6268; }
+
+        /* Botones del Menú Principal */
+        #sistema button { width: 100%; margin-bottom: 10px; font-size: 16px; padding: 15px; text-align: left; }
+
+        /* Tablas */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; }
+    </style>
 </head>
 <body>
 
-    <h1>ExpertQ: Gestión de Consultas</h1>
+    <h1>ExpertQ: Sistema de Consultas</h1>
 
     <div id="sistema" class="vista activa">
-        <h2>Panel de Acceso</h2>
-        <label id="sistema_lblMensaje" style="color: green; font-weight: bold;"></label>
+        <h2>Panel de Control</h2>
+        <label id="sistema_lblMensaje"></label>
         
-        <p>Seleccione su rol para ingresar:</p>
+        <p>Seleccione una opción:</p>
+
+        <button id="sistema_btGestionExpertos">👤 Gestión de Expertos (Admin)</button>
         
-        <button id="sistema_btGestionExpertos">Soy Administrador (Registrar Expertos)</button>
-        <br><br>
+        <button id="sistema_btGestionGrupos">📝 Realizar Consultas (Grupo)</button>
         
-        <button id="sistema_btGestionGrupos">Soy Grupo (Hacer Pregunta)</button>
-        <br><br>
-        
-        <button id="sistema_btExpertoResponder">Soy Experto (Responder Consultas)</button>
+        <button id="sistema_btExpertoResponder">💬 Responder Preguntas (Experto)</button>
     </div>
 
     <div id="expertos" class="vista">
-        <h2>Administración de Expertos</h2>
-        <p>Gestione el personal calificado.</p>
+        <h2>Directorio de Expertos</h2>
         
-        <button id="expertos_btAgregar">Registrar Nuevo Experto</button>
-        <button id="expertos_btVolver" class="secondary">Salir / Volver</button>
+        <button id="expertos_btAgregar">Agregar Nuevo Experto</button>
+        
+        <button id="expertos_btVolver">Volver al Menú</button>
         
         <div id="expertos_divExpertos">
             <table><thead><tr><th>Cargando...</th></tr></thead></table>
@@ -55,78 +97,79 @@
     </div>
 
     <div id="experto" class="vista">
-        <h2 id="experto_lblOpcion">Registrar Experto</h2>
+        <h2 id="experto_lblOpcion">Experto</h2>
         
-        <label>Nombre del Experto:</label>
+        <label>Nombre Completo:</label>
         <input type="text" id="experto_inNombre">
         
         <label>Área:</label>
         <select id="experto_inArea">
-            <option value="">-- Seleccione Área --</option>
-            <option value="Tecnología">Tecnología</option>
+            <option value="">-- Seleccione --</option>
+            <option value="Tecnologia">Tecnología</option>
             <option value="RRHH">Recursos Humanos</option>
+            <option value="Contabilidad">Contabilidad</option>
             <option value="Legal">Legal</option>
         </select>
         
         <label>Cargo:</label>
         <input type="text" id="experto_inCargo">
         
-        <button id="experto_btAceptar">Aceptar</button>
-        <button id="experto_btCancelar" class="secondary">Cancelar</button>
+        <button id="experto_btAceptar">Guardar</button>
+        
+        <button id="experto_btCancelar">Cancelar</button>
+    </div>
+
+    <div id="grupos" class="vista">
+        <h2>Buzón de Consultas</h2>
+        <p>Historial de preguntas realizadas.</p>
+
+        <button id="grupos_btAgregar">Nueva Consulta</button>
+        
+        <button id="grupos_btVolver">Volver al Menú</button>
+        
+        <div id="grupos_divGrupos">
+            <table><thead><tr><th>Cargando...</th></tr></thead></table>
+        </div>
     </div>
 
     <div id="grupo" class="vista">
-        <h2 id="grupo_lblOpcion">Realizar Consulta</h2>
+        <h2 id="grupo_lblOpcion">Realizar Pregunta</h2>
         
-        <label>Seleccione al Experto:</label>
+        <label>Seleccionar Experto:</label>
         <select id="grupo_inExperto">
             <option value="">-- Cargando Expertos... --</option>
         </select>
         
-        <label>Escriba su Pregunta:</label>
-        <input type="text" id="grupo_inNombre" placeholder="Escriba su nombre...">
-        <input type="text" id="grupo_inPregunta" placeholder="Escriba su pregunta...">
+        <label>Su Pregunta:</label>
+        <textarea id="grupo_inPregunta" rows="4" placeholder="Escriba su duda aquí..."></textarea>
+
+        <button id="grupo_btAceptar">Enviar Consulta</button>
         
-        <label>Detalle:</label>
-        <textarea id="grupo_textarea" rows="4" placeholder="Detalle su consulta aquí..."></textarea>
-        
-        <button id="grupo_btAceptar">Enviar Pregunta</button>
-        <button id="grupo_btCancelar" class="secondary">Volver</button>
+        <button id="grupo_btCancelar">Cancelar</button>
     </div>
 
     <div id="respuesta" class="vista">
         <h2>Responder Consultas</h2>
         
-        <label>¿Quién eres? (Selecciona tu nombre):</label>
+        <label>Identifícate (Experto):</label>
         <select id="respuesta_inExpertoLogin">
-            <option value="">-- Seleccionar --</option>
+            <option value="">-- Selecciona tu nombre --</option>
         </select>
-        
-        <hr>
-        
-        <h3>Preguntas Asignadas:</h3>
-        <div id="respuesta_divPreguntas">
-            <p style="color:gray">Selecciona tu nombre para ver las preguntas pendientes.</p>
+
+        <div id="respuesta_divPreguntas" style="margin-top: 20px; padding: 10px; background: #e9ecef;">
+            <p><i>Selecciona un experto arriba para ver sus preguntas pendientes.</i></p>
         </div>
-        
-        <label>Tu Respuesta:</label>
-        <textarea id="respuesta_inTexto" rows="4" placeholder="Escribe la solución..."></textarea>
-        
-        <button id="respuesta_btEnviar">Responder</button>
-        <button id="respuesta_btVolver" class="secondary">Salir</button>
-    </div>
-    
-    <div id="grupos" class="vista">
-       <h2>Monitor de Consultas</h2>
-       <button id="grupos_btAgregar">Nueva Consulta</button>
-       <button id="grupos_btVolver" class="secondary">Volver</button>
-       <div id="grupos_divGrupos"></div>
+
+        <label>Escribir Respuesta:</label>
+        <textarea id="respuesta_inTexto" rows="4"></textarea>
+
+        <button id="respuesta_btEnviar">Enviar Respuesta</button>
+        <button id="respuesta_btVolver">Salir</button>
     </div>
 
-     <script type="module">
+    <script type="module">
         import Cl_index from "./dist/Cl_index.js";
         new Cl_index()
     </script>
-
 </body>
 </html>
