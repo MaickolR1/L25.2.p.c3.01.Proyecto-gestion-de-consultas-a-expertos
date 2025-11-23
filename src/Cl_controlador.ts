@@ -13,123 +13,47 @@ export default class Cl_controlador {
     this.vista = vista;
   }
 
-  // =========================================
-  //           SISTEMA / VISTAS
-  // =========================================
-
-  /**
-   * Llama a la vista principal para cambiar la pantalla activa.
-   */
-  activarVista(opcion: {
-    vista: string;
-    opcion?: opcionFicha;
-    objeto?: Cl_mExperto | Cl_mGrupo;
-  }): void {
+  // --- NAVEGACIÓN ---
+  activarVista(opcion: { vista: string; opcion?: opcionFicha; objeto?: Cl_mExperto | Cl_mGrupo; }): void {
     this.vista.activarVista(opcion);
   }
 
-  // =========================================
-  //           GESTIÓN DE EXPERTOS (CRUD)
-  // =========================================
-
-  addExperto({
-    dtExperto,
-    callback,
-  }: {
-    dtExperto: iExperto;
-    callback: (error: string | false) => void;
-  }): void {
+  // --- EXPERTOS ---
+  addExperto({ dtExperto, callback }: { dtExperto: iExperto; callback: (error: string | false) => void; }): void {
     this.modelo.addExperto({ dtExperto, callback });
   }
-
-  editExperto({
-    dtExperto,
-    callback,
-  }: {
-    dtExperto: iExperto;
-    callback: (error: string | boolean) => void;
-  }): void {
+  editExperto({ dtExperto, callback }: { dtExperto: iExperto; callback: (error: string | boolean) => void; }): void {
     this.modelo.editExperto({ dtExperto, callback });
   }
-
-  deleteExperto({
-    id,
-    callback,
-  }: {
-    id: number;
-    callback: (error: string | boolean) => void;
-  }): void {
-    // Aquí podrías agregar una validación si el experto tiene consultas asignadas
+  deleteExperto({ id, callback }: { id: number; callback: (error: string | boolean) => void; }): void {
     this.modelo.deleteExperto({ id, callback });
   }
-
   experto(id: number): Cl_mExperto | null {
-    let experto = this.modelo.experto(id);
-    // Devuelve una copia del objeto
-    if (experto) return new Cl_mExperto(experto.toJSON());
-    else return null;
+    let exp = this.modelo.experto(id);
+    return exp ? new Cl_mExperto(exp.toJSON()) : null;
   }
-
   get dtExpertos(): iExperto[] {
     return this.modelo.dtExpertos();
   }
 
-  // =========================================
-  //           GESTIÓN DE GRUPOS/USUARIOS (CRUD)
-  // =========================================
-  
-  // NOTA: Estos métodos CRUD de Grupos son para administrar los "Usuarios" o "Grupos"
-  // que registran las consultas, no para administrar las consultas en sí.
-
-  addGrupo({
-    dtGrupo,
-    callback,
-  }: {
-    dtGrupo: iGrupo;
-    callback: (error: string | false) => void;
-  }): void {
-    this.modelo.addGrupo({ dtGrupo, callback });
-  }
-
-  editGrupo({
-    dtGrupo,
-    callback,
-  }: {
-    dtGrupo: iGrupo;
-    callback: (error: string | boolean) => void;
-  }): void {
-    this.modelo.editGrupo({ dtGrupo, callback });
-  }
-
-  deleteGrupo({
-    id,
-    callback,
-  }: {
-    id: number;
-    callback: (error: string | boolean) => void;
-  }): void {
-    // Aquí podrías validar si el grupo tiene consultas
-    this.modelo.deleteGrupo({ id, callback });
-  }
-
-  grupo(id: number): Cl_mGrupo | null {
-    let grupo = this.modelo.grupo(id);
-    if (grupo) return new Cl_mGrupo(grupo.toJSON());
-    else return null;
-  }
-
+  // --- GRUPOS (Solo lectura/listado para el admin) ---
   get dtGrupos(): iGrupo[] {
     return this.modelo.dtGrupos();
   }
+  grupo(id: number): Cl_mGrupo | null {
+    let grp = this.modelo.grupo(id);
+    return grp ? new Cl_mGrupo(grp.toJSON()) : null;
+  }
+  // (Opcional) Métodos deleteGrupo/editGrupo si quieres borrar spam, pero no registrar.
+  deleteGrupo({ id, callback }: { id: number; callback: (error: string | boolean) => void; }): void {
+      this.modelo.deleteGrupo({ id, callback });
+  }
+  editGrupo({ dtGrupo, callback }: { dtGrupo: iGrupo; callback: (error: string | boolean) => void; }): void {
+      this.modelo.editGrupo({ dtGrupo, callback });
+  }
 
 
-  // =========================================
-  //           LÓGICA DE CONSULTAS (NUEVA FUNCIÓN)
-  // =========================================
-
-  /**
-   * Registra una consulta asociándola a un experto y la guarda en el primer grupo/usuario disponible.
-   */
+  // --- LÓGICA PRINCIPAL DE CONSULTAS ---
   registrarConsulta({
     idExperto,
     pregunta,
@@ -140,71 +64,62 @@ export default class Cl_controlador {
     callback: (error: string | false) => void;
   }): void {
 
-    const grupos = this.modelo.dtGrupos();
+    // 1. Buscamos si ya existe un "Buzón" (Grupo) para guardar las preguntas
+    let grupos = this.modelo.dtGrupos();
+    let grupoContenedor;
+
     if (grupos.length === 0) {
-        callback("Error: No existen Grupos/Usuarios para registrar la consulta. Cree uno primero (en la vista de 'Consultas Pendientes').");
-        return;
-    }
-
-    // 1. Usamos el ID del primer grupo encontrado como origen de la consulta (Usuario que pregunta)
-    const GRUPO_ID_ORIGEN = grupos[0].id!; 
-    let grupoOrigen = this.modelo.grupo(GRUPO_ID_ORIGEN);
-
-    if (!grupoOrigen) {
-        callback("Error interno: Grupo origen no encontrado.");
-        return;
-    }
-
-    // 2. Agregamos la consulta al objeto Grupo en memoria
-    if (grupoOrigen.agregarConsulta(idExperto, pregunta)) {
+        // AUTOMÁTICO: Si no hay grupos, creamos uno invisible al usuario
+        let nuevoGrupo = {
+            id: Date.now(),
+            creadoEl: new Date().toISOString(),
+            alias: null,
+            nombre: "Buzón de Consultas", // Nombre fijo automático
+            consultas: []
+        };
         
-        // 3. Persistimos el cambio guardando el grupo completo
+        // Lo guardamos en BD sin pedirle nada al usuario
+        this.modelo.addGrupo({ 
+            dtGrupo: nuevoGrupo, 
+            callback: (err) => {
+                 if (err) callback(err); 
+            }
+        });
+        grupoContenedor = this.modelo.grupo(nuevoGrupo.id!);
+    } else {
+        // Si ya existe, usamos el primero que haya
+        grupoContenedor = this.modelo.grupo(grupos[0].id!);
+    }
+
+    if (!grupoContenedor) {
+        callback("Error interno: No se pudo asignar lugar para la consulta.");
+        return;
+    }
+
+    // 2. Guardamos la pregunta en ese grupo automático
+    if (grupoContenedor.agregarConsulta(idExperto, pregunta)) {
         this.modelo.editGrupo({
-            dtGrupo: grupoOrigen.toJSON(),
+            dtGrupo: grupoContenedor.toJSON(),
             callback: (error) => {
-                if (!error) this.vista.refresh(); // Refrescamos la vista del sistema tras guardar
+                if (!error && this.vista) this.vista.refresh();
                 callback(error as string | false);
             }
         });
     } else {
-        // Esto captura errores de validación de la pregunta (e.g., muy corta) en Cl_mGrupo.ts
-        callback("Error al registrar la pregunta. Asegúrese de que el texto no esté vacío y sea suficientemente largo (mínimo 5 caracteres).");
+        callback("Error: Pregunta inválida.");
     }
   }
 
-  /**
-   * Registra la respuesta de un Experto a una consulta específica
-   */
-  responderPregunta({
-    idGrupo,
-    idConsulta,
-    respuesta,
-    callback,
-  }: {
-    idGrupo: number;
-    idConsulta: number;
-    respuesta: string;
-    callback: (error: string | boolean) => void;
-  }): void {
+  responderPregunta({ idGrupo, idConsulta, respuesta, callback }: any): void {
+    // (Misma lógica de respuesta que tenías)
     let grupo = this.modelo.grupo(idGrupo);
-
-    if (!grupo) {
-        callback("No se encontró el grupo origen de la consulta.");
-        return;
-    }
-
-    // Registramos la respuesta en memoria (Cl_mGrupo.ts debe tener responderConsulta)
-    if (grupo.responderConsulta(idConsulta, respuesta)) {
-        // Persistimos el cambio
+    if (grupo && grupo.responderConsulta(idConsulta, respuesta)) {
         this.modelo.editGrupo({
             dtGrupo: grupo.toJSON(),
-            callback: (error) => {
-                if (!error) this.vista.refresh();
-                callback(error);
-            }
+            callback: (error) => callback(error)
         });
     } else {
-        callback("Error al guardar la respuesta. La consulta podría no existir o la respuesta está vacía.");
+        callback("Error al responder.");
     }
   }
 }

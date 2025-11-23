@@ -1,87 +1,70 @@
-// En Cl_vGrupo.ts (Registro de Consulta / Edición de Grupo)
-
-import Cl_mGrupo from "./Cl_mGrupo.js"; 
+import Cl_mGrupo from "./Cl_mGrupo.js";
 import Cl_vGeneral, { tHTMLElement } from "./tools/Cl_vGeneral.js";
 import { opcionFicha } from "./tools/core.tools.js";
-import { iExperto } from "./Cl_mExperto.js"; 
+import { iExperto } from "./Cl_mExperto.js";
 
 export default class Cl_vGrupo extends Cl_vGeneral {
-  
-  // Para REGISTRO DE CONSULTA (modo 'add' de Cl_vSistema)
-  private inExperto: HTMLSelectElement; 
-  private inPregunta: HTMLTextAreaElement;
-  
+  // Solo necesitamos estos dos inputs
+  private inExperto: HTMLSelectElement;
+  private inPregunta: HTMLTextAreaElement = document.createElement('textarea');
+
   private btAceptar: HTMLButtonElement;
   private btCancelar: HTMLButtonElement;
   private lblOpcion: HTMLLabelElement;
+  
   private opcion: opcionFicha | null;
-  private grupo: Cl_mGrupo; 
+  // Mantenemos la propiedad grupo solo por compatibilidad de tipos
+  private grupo: Cl_mGrupo | null; 
 
   constructor() {
-    super({ formName: "grupo" }); 
+    super({ formName: "grupo" });
     this.opcion = null;
-    this.grupo = new Cl_mGrupo();
-    this.inPregunta = this.crearHTMLElement("textarea") as HTMLTextAreaElement;
+    this.grupo = null;
+
+    this.inExperto = this.crearHTMLElement("inExperto", { type: "select" }) as HTMLSelectElement;
+    this.inPregunta = this.crearHTMLElement("inPregunta", { type: "textarea" }) as HTMLTextAreaElement;
+    this.btAceptar = this.crearHTMLButtonElement("btAceptar");
+    this.btCancelar = this.crearHTMLButtonElement("btCancelar");
 
     this.lblOpcion = this.crearHTMLLabelElement("lblOpcion", {
-      refresh: () => {
-          // El texto cambia según si estamos añadiendo una consulta o editando un grupo
-          if (this.opcion === opcionFicha.add) {
-              this.lblOpcion.innerHTML = "Registrar Nueva Consulta";
-          } else {
-              this.lblOpcion.innerHTML = "Editar Grupo/Usuario";
-          }
-      }
+      refresh: () => { this.lblOpcion.innerHTML = "Realizar Consulta"; }
     });
 
-    // 1. SELECT PARA ELEGIR EXPERTO (Solo visible en modo 'add')
+    // 1. SELECT PARA ELEGIR EXPERTO
     this.inExperto = this.crearHTMLElement("inExperto", {
       type: tHTMLElement.SELECT,
       refresh: () => {
-        this.inExperto.style.borderColor = 
-          (this.opcion === opcionFicha.add && this.inExperto.value === "") ? "red" : "";
-        this.inExperto.style.display = this.opcion === opcionFicha.add ? 'block' : 'none';
+        this.inExperto.style.borderColor = this.inExperto.value !== "" ? "" : "red";
       },
       onchange: () => this.refresh(),
     }) as HTMLSelectElement;
     
-    // 2. TEXTAREA PARA LA PREGUNTA (Solo visible en modo 'add')
+    // 2. TEXTAREA PARA LA PREGUNTA
    const inPregunta = this.crearHTMLElement("inPregunta", {
   type: "textarea",
   refresh: () => {
     // Validación: la pregunta debe tener al menos 10 caracteres
     this.inPregunta.style.borderColor = 
-      this.inPregunta.value.length >= 10 ? "" : "red";
+      this.inPregunta.value.length >= 5 ? "" : "red";
   },
 }) as HTMLTextAreaElement;
+
+inPregunta.oninput = (): void => this.refresh();
 
     this.btAceptar = this.crearHTMLButtonElement("btAceptar", {
       onclick: () => this.aceptar(),
       refresh: () => {
-        let esValido: boolean = false;
-        
-        if (this.opcion === opcionFicha.add) {
-            // Validar para Registro de Consulta
-            esValido = this.inExperto.value !== "" && this.inPregunta.value.length >= 10;
-        } else if (this.opcion === opcionFicha.edit) {
-            // Validar para Edición de Grupo
-            esValido = this.grupo.nombreOk;
-        }
-
-        this.btAceptar.disabled = !esValido;
+        // Solo valida que haya experto y pregunta. No pide nombre de grupo.
+        this.btAceptar.disabled = this.inExperto.value === "" || this.inPregunta.value.length < 5;
       },
     });
 
     this.btCancelar = this.crearHTMLButtonElement("btCancelar", {
-      // Volvemos a la lista de grupos, que es la vista que tiene el botón de consulta
-      onclick: () => this.controlador!.activarVista({ vista: "grupos" }), 
+      onclick: () => this.controlador!.activarVista({ vista: "sistema" }),
     });
   }
-  
-  // --- Métodos de Lógica (Adaptados) ---
 
   cargarExpertos(expertos: iExperto[]) {
-    // ... (Lógica de carga de select experto)
     this.inExperto.innerHTML = '<option value="">-- Seleccione un Experto --</option>';
     expertos.forEach(exp => {
       let option = document.createElement("option");
@@ -92,65 +75,46 @@ export default class Cl_vGrupo extends Cl_vGeneral {
   }
 
   aceptar() {
-      if (this.opcion === opcionFicha.add) {
-          // Lógica de Registro de CONSULTA
-          const idExperto = parseInt(this.inExperto.value);
-          const pregunta = this.inPregunta.value;
-          
-          this.controlador!.registrarConsulta({
-              idExperto,
-              pregunta,
-              callback: (error) => {
-                  if (!error) {
-                      alert("Consulta registrada.");
-                      this.controlador!.activarVista({ vista: "grupos" }); // Volvemos a la lista de Grupos/Consultas
-                  } else {
-                      alert(`Error al registrar consulta: ${error}`);
-                  }
+      // Solo manejamos el registro de CONSULTA
+      const idExperto = parseInt(this.inExperto.value);
+      const pregunta = this.inPregunta.value;
+      
+      this.controlador!.registrarConsulta({
+          idExperto,
+          pregunta,
+          callback: (error) => {
+              if (!error) {
+                  alert("Consulta enviada correctamente.");
+                  this.controlador!.activarVista({ vista: "sistema" });
+              } else {
+                  alert(`Error: ${error}`);
               }
-          });
-      } else if (this.opcion === opcionFicha.edit) {
-          // Lógica de Edición de GRUPO/USUARIO
-          this.controlador!.editGrupo({
-              dtGrupo: this.grupo.toJSON(),
-              callback: (error) => {
-                  if (!error) this.controlador!.activarVista({ vista: "grupos" });
-                  else alert(`Error: ${error}`);
-              }
-          });
-      }
+          }
+      });
   }
-
-  // ===========================================
-  // 🎯 FIX CRÍTICO PARA EL ERROR EN Cl_vSistema.ts
-  // ===========================================
   show({ 
-    ver,
-    grupo, // <--- DEBE ESTAR EN LA DESTRUCTURACIÓN
-    opcion,
-  }: {
-    ver: boolean;
-    grupo?: Cl_mGrupo; // <--- DEBE ESTAR EN LA INTERFAZ DE TIPOS
-    opcion?: opcionFicha;
-  } = { ver: false }): void { // <--- Valor por defecto simple
+    ver, 
+    grupo, 
+    opcion 
+  }: { 
+    ver: boolean; 
+    grupo?: Cl_mGrupo; // <--- Al poner esto aquí, el error en Cl_vSistema desaparece
+    opcion?: opcionFicha; 
+  } = { ver: false }): void {
+    
     super.show({ ver });
     
     if (ver) {
-        this.opcion = opcion || null; 
-
-        if (this.opcion === opcionFicha.edit && grupo) {
-            // Modo Edición de Grupo/Usuario
-            this.grupo = grupo;
-            // Ocultar campos de consulta
-            this.inExperto.value = '';
-            this.inPregunta.value = '';
-        } else if (this.opcion === opcionFicha.add) {
-            // Modo Registro de Consulta
-            this.grupo = new Cl_mGrupo(); // Inicializamos un grupo temporal (o simplemente no lo usamos)
-            this.cargarExpertos(this.controlador!.dtExpertos); 
-            this.inExperto.value = ''; 
-            this.inPregunta.value = '';
+        this.opcion = opcion || null;
+        
+        // Siempre cargamos la lista de expertos
+        if (this.controlador) {
+            this.cargarExpertos(this.controlador.dtExpertos);
         }
+
+        // Limpiamos los campos para una nueva pregunta
+        this.inExperto.value = "";
+        this.inPregunta.value = "";
         
         this.refresh();
     }
