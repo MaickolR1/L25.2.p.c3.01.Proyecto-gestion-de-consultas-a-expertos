@@ -9,10 +9,7 @@ export default class Cl_vGrupo extends Cl_vGeneral {
   
   // Para REGISTRO DE CONSULTA (modo 'add' de Cl_vSistema)
   private inExperto: HTMLSelectElement; 
-  private inPregunta: HTMLTextAreaElement; 
-
-  // Para EDICIÓN DE GRUPO/USUARIO (modo 'edit' de Cl_vSistema)
-  private inNombre: HTMLInputElement; // Re-introducimos el campo nombre si mantienes la edición de Grupos
+  private inPregunta: HTMLTextAreaElement;
   
   private btAceptar: HTMLButtonElement;
   private btCancelar: HTMLButtonElement;
@@ -57,21 +54,6 @@ export default class Cl_vGrupo extends Cl_vGeneral {
       this.inPregunta.value.length >= 10 ? "" : "red";
   },
 }) as HTMLTextAreaElement;
-
-inPregunta.oninput = (): void => this.refresh();
-
-    // 3. INPUT NOMBRE GRUPO (Solo visible en modo 'edit')
-    this.inNombre = this.crearHTMLInputElement("inNombre", {
-        oninput: () => {
-            this.grupo.nombre = this.inNombre.value; 
-            this.refresh();
-        },
-        refresh: () => {
-            this.inNombre.style.borderColor = this.grupo.nombreOk ? "" : "red";
-            this.inNombre.style.display = this.opcion === opcionFicha.edit ? 'block' : 'none';
-        }
-    });
-
 
     this.btAceptar = this.crearHTMLButtonElement("btAceptar", {
       onclick: () => this.aceptar(),
@@ -159,7 +141,6 @@ inPregunta.oninput = (): void => this.refresh();
         if (this.opcion === opcionFicha.edit && grupo) {
             // Modo Edición de Grupo/Usuario
             this.grupo = grupo;
-            this.inNombre.value = this.grupo.nombre;
             // Ocultar campos de consulta
             this.inExperto.value = '';
             this.inPregunta.value = '';
