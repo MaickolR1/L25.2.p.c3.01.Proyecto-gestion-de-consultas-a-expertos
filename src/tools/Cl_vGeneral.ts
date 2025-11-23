@@ -13,6 +13,7 @@ export const tHTMLElement = {
   SELECT: "select",
   BUTTON: "button",
   LABEL: "label",
+  TEXTAREA: "textarea",
 };
 Object.freeze(tHTMLElement);
 export default class Cl_vGeneral {
@@ -52,18 +53,21 @@ export default class Cl_vGeneral {
       type = tHTMLElement.CONTAINER,
       onclick = () => {},
       onchange = () => {},
+      oninput = () => {},
       refresh = () => {},
     }: {
       isForm?: boolean;
       type?: string;
       onclick?: () => void;
       onchange?: () => void;
+      oninput?: () => void;
       refresh?: () => void;
     } = {
       isForm: false,
       type: tHTMLElement.CONTAINER,
       onclick: () => {},
       onchange: () => {},
+      oninput: () => {},
       refresh: () => {},
     }
   ):
@@ -92,6 +96,7 @@ export default class Cl_vGeneral {
     }
     domElement.onclick = onclick;
     domElement.onchange = onchange;
+    domElement.oninput = oninput;
     domElement.refresh = refresh;
     this.objects.push(domElement);
     return domElement;
